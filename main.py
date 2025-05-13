@@ -1,6 +1,7 @@
 import boto3
 import pandas as pd
 from io import StringIO
+from sqlalchemy import create_engine
 
 
 def load_csv_from_s3(bucket_name: str, file_name: str) -> pd.DataFrame:
@@ -16,9 +17,13 @@ def load_csv_from_s3(bucket_name: str, file_name: str) -> pd.DataFrame:
     return df
 
 
+def write_to_sqlite(df, database_name: str, table_name: str):
+    engine = create_engine(f'sqlite:///{database_name}') #create engine which is connection to specified db. sets configs for connection
+    df.to_sql(table_name, con=engine, index=False, if_exists='replace') #create + write datafram to db. index = false because pandas adds index column i dont need that
+
+
 bucket_name = "my-spotify-stats-bucket"
 file_name = "spotifydataset.csv"
 
 df = load_csv_from_s3(bucket_name, file_name)
- 
-print(df.head()) #a preview of data from response body (its not ALL the data since its too large to display via terminal ofc)
+write_to_sqlite(df, 'spotify_stats.db', 'spotify_stats.db')
