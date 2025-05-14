@@ -3,6 +3,7 @@ import pandas as pd
 from io import StringIO
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
+import sqlite3
 
 
 def load_csv_from_s3(bucket_name: str, file_name: str) -> pd.DataFrame:
@@ -26,8 +27,24 @@ def write_to_sqlite(df, database_name: str, table_name: str):
     except SQLAlchemyError as e:        
         print(f"Error: {e}")
 
+
+def filter_non_explicit_songs():
+    try:
+        connection = sqlite3.connect('spotify_stats.db')
+        cursor = connection.cursor()
+        cursor.execute("""CREATE TABLE IF NOT EXISTS non_explicit_songs AS
+            SELECT * FROM spotify_statistics WHERE explicit = 0""")
+        connection.commit()
+    except sqlite3.Error as e:
+        print(f"Error: {e}")
+    finally:
+        connection.close()
+
+
 bucket_name = "my-spotify-stats-bucket"
 file_name = "spotifydataset.csv"
 
-df = load_csv_from_s3(bucket_name, file_name)
-write_to_sqlite(df, 'spotify_stats.db', 'spotify_statistics')
+# df = load_csv_from_s3(bucket_name, file_name)
+# write_to_sqlite(df, 'spotify_stats.db', 'spotify_statistics')
+
+filter_non_explicit_songs()
