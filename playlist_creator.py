@@ -36,10 +36,11 @@ def get_song_uris():
         query = f"{track_name} {artist_name}"
         
         results = sp.search(q=query, type="track", limit=1) #limit=1 returns only top result
-        print(results)
         tracks = results.get('tracks', {}).get('items', [])
         if tracks:
             uris.append(tracks[0]['uri'])
+    
+    return uris
 
 
 def add_songs_to_playlist():
@@ -51,3 +52,6 @@ def add_songs_to_playlist():
             items=uris[i:i+100]
         )
     print("Songs added to playlist")
+
+
+add_songs_to_playlist()
