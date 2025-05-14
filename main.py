@@ -7,6 +7,14 @@ import sqlite3
 
 
 def load_csv_from_s3(bucket_name: str, file_name: str) -> pd.DataFrame:
+    """
+    Creates conection to AWS using boto3, retrieves csv data from my-spotify-stats-bucket, use pandas to create data frame
+
+    Args:
+        bucket_name (str): name of bucket we are getting csv data from
+        file_name (str): name of csv file
+        
+    """
     #creates s3 client object
     s3 = boto3.client("s3")
 
@@ -20,6 +28,14 @@ def load_csv_from_s3(bucket_name: str, file_name: str) -> pd.DataFrame:
 
 
 def write_to_sqlite(df, database_name: str, table_name: str):
+    """
+    Writes the data frame to a local SQLite database.
+
+    Args:
+        df (pd.DataFrame): The data frame to write.
+        db_name (str): The name of the database file.
+        table_name (str): The name of the table to create or replace.
+    """
     try:
         engine = create_engine(f'sqlite:///{database_name}') #create engine which is connection to specified db. sets configs for connection
         df.to_sql(table_name, con=engine, index=False, if_exists='replace') #create + write datafram to db. index = false because pandas adds index column i dont need that
@@ -29,12 +45,16 @@ def write_to_sqlite(df, database_name: str, table_name: str):
 
 
 def filter_non_explicit_songs():
+    """
+    Creates a new table (non_explict_songs) in spotify_stats.db with only non-explicit songs from spotify_statistics table
+    """
     try:
         connection = sqlite3.connect('spotify_stats.db')
         cursor = connection.cursor()
         cursor.execute("""CREATE TABLE IF NOT EXISTS non_explicit_songs AS
             SELECT * FROM spotify_statistics WHERE explicit = 0""")
         connection.commit()
+        print("Non-explicit songs table created successfully")
     except sqlite3.Error as e:
         print(f"Error: {e}")
     finally:
@@ -44,7 +64,6 @@ def filter_non_explicit_songs():
 bucket_name = "my-spotify-stats-bucket"
 file_name = "spotifydataset.csv"
 
-# df = load_csv_from_s3(bucket_name, file_name)
-# write_to_sqlite(df, 'spotify_stats.db', 'spotify_statistics')
-
+df = load_csv_from_s3(bucket_name, file_name)
+write_to_sqlite(df, 'spotify_stats.db', 'spotify_statistics')
 filter_non_explicit_songs()
