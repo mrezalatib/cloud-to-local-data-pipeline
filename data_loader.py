@@ -13,15 +13,17 @@ def load_csv_from_s3(bucket_name: str, file_name: str) -> pd.DataFrame:
     Args:
         bucket_name (str): name of bucket we are getting csv data from
         file_name (str): name of csv file
-        
+    
+    Returns:
+        pd.DataFrame: a pandas dataframe containing the csv data.
     """
     #creates s3 client object
     s3 = boto3.client("s3")
 
     response = s3.get_object(Bucket=bucket_name, Key=file_name)
-    csv_data = response['Body'].read().decode('utf-8') #decode utf-8 makes response body human readable
+    csv_data = response['Body'].read().decode('utf-8') #decode utf-8 makes response body a string instead of bytes (original format)
 
-    #csv_content passed through String_IO because pd.read_csv expects a file or file-like object (not a string)
+    #csv_content passed through String_IO because pd.read_csv expects a file or file-like object (not a string or bytes)
     df = pd.read_csv(StringIO(csv_data))
 
     return df
