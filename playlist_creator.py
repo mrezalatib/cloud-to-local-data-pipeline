@@ -14,6 +14,15 @@ playlist = sp.user_playlist_create(
 
 
 def get_non_explicit_songs(artist: str):
+    """
+    Retrieves non-explicit songs from the non_explicit_songs ttable in SQLite db based on specified artist
+
+    args:
+        artist (str): the name of the artist whose non-explicit songs to be retrieved from the db.
+
+    returns: 
+        list[sqlite3.Row]: a list of song data where each list item behaves like a dict.
+    """
     connection = sqlite3.connect('spotify_stats.db')
     connection.row_factory = sqlite3.Row #allows each row to act like a dictionary
     cursor = connection.cursor()
@@ -27,6 +36,13 @@ def get_non_explicit_songs(artist: str):
 
 
 def get_song_uris():
+    """
+    Searches spotify using spotify api for songs from the db, collects song uniform resource identifier,
+    adds uri to list.
+
+    Returns:
+        list[str]: a list of uris of songs found via search on spotify.
+    """
     songs = get_non_explicit_songs(artist="Arctic Monkeys")
     uris = []
 
@@ -44,6 +60,9 @@ def get_song_uris():
 
 
 def add_songs_to_playlist():
+    """
+    Takes list of spotify songs uris and adds each item to the playlist.
+    """
     uris = get_song_uris()
 
     for i in range(0, len(uris), 100):
