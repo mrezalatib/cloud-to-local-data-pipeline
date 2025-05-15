@@ -61,11 +61,3 @@ def filter_non_explicit_songs():
         print(f"Error: {e}")
     finally:
         connection.close()
-
-
-bucket_name = "my-spotify-stats-bucket"
-file_name = "spotifydataset.csv"
-
-df = load_csv_from_s3(bucket_name, file_name)
-write_to_sqlite(df, 'spotify_stats.db', 'spotify_statistics')
-filter_non_explicit_songs()

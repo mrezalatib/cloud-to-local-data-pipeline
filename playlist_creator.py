@@ -3,24 +3,15 @@ import sqlite3
 
 sp = get_spotify_client()
 
-user_id = sp.current_user()['id']
-
-playlist = sp.user_playlist_create(
-    user=user_id,
-    name="Top Arctic Monkey Picks ❄️🐒",
-    public=False,
-    description="list of songs filtered for no explicit content."
-)
-
 
 def get_non_explicit_songs(artist: str):
     """
-    Retrieves non-explicit songs from the non_explicit_songs ttable in SQLite db based on specified artist
+    Retrieves non-explicit songs from the non_explicit_songs table in SQLite db based on specified artist
 
-    args:
+    Args:
         artist (str): the name of the artist whose non-explicit songs to be retrieved from the db.
 
-    returns: 
+    Returns: 
         list[sqlite3.Row]: a list of song data where each list item behaves like a dict.
     """
     connection = sqlite3.connect('spotify_stats.db')
@@ -64,6 +55,14 @@ def add_songs_to_playlist():
     Takes list of spotify songs uris and adds each item to the playlist.
     """
     uris = get_song_uris()
+    user_id = sp.current_user()['id']
+
+    playlist = sp.user_playlist_create(
+        user=user_id,
+        name="Top Arctic Monkey Picks ❄️🐒",
+        public=False,
+        description="list of songs filtered for no explicit content."
+    )
 
     for i in range(0, len(uris), 100):
         sp.playlist_add_items(
@@ -71,6 +70,3 @@ def add_songs_to_playlist():
             items=uris[i:i+100]
         )
     print("Songs added to playlist")
-
-
-add_songs_to_playlist()
