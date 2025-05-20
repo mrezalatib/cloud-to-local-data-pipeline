@@ -34,7 +34,8 @@ def get_song_uris():
     Returns:
         list[str]: a list of uris of songs found via search on spotify.
     """
-    songs = get_non_explicit_songs(artist="Arctic Monkeys")
+    artist = input("Please select an artist: ")
+    songs = get_non_explicit_songs(artist= artist)
     uris = []
 
     for song in songs:
@@ -57,9 +58,10 @@ def add_songs_to_playlist():
     uris = get_song_uris()
     user_id = sp.current_user()['id']
 
+    name_of_playlist = input("Please enter a name for the playlist: ")
     playlist = sp.user_playlist_create(
         user=user_id,
-        name="Top Arctic Monkey Picks ❄️🐒",
+        name=name_of_playlist,
         public=False,
         description="list of songs filtered for no explicit content."
     )
