@@ -51,6 +51,24 @@ def get_song_uris():
     return uris
 
 
+def verify_playlist_name():
+    fetch_existing_playlists = sp.current_user_playlists(limit=50)
+    existing_playlists = []
+    valid_playlist_name = False
+
+    for playlist in fetch_existing_playlists['items']:
+        existing_playlists.append(playlist['name'].lower().strip())
+    
+    while valid_playlist_name == False:
+        name_of_new_playlist = input("What do you want to call this playlist?: ").lower().strip()
+        if name_of_new_playlist not in existing_playlists:
+            valid_playlist_name = True
+        else:
+            print("Playlist already exists. Please choose a different name.")
+
+    return name_of_new_playlist
+
+
 def add_songs_to_playlist():
     """
     Takes list of spotify songs uris and adds each item to the playlist.
@@ -58,7 +76,8 @@ def add_songs_to_playlist():
     uris = get_song_uris()
     user_id = sp.current_user()['id']
 
-    name_of_playlist = input("Please enter a name for the playlist: ")
+    name_of_playlist = verify_playlist_name()
+
     playlist = sp.user_playlist_create(
         user=user_id,
         name=name_of_playlist,
